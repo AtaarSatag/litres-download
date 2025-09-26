@@ -27,7 +27,7 @@
 
 (Решение для GNU/Linux)
 
-Если вы сталкиваетесь с проблемой `selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 114 Current browser version is...`, когда запускаете скрипт `get_images.py`, то попробуйте следующии шаги:
+Если вы сталкиваетесь с проблемой `selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 114 Current browser version is...`, когда запускаете скрипт `get_images.py`, то попробуйте следующие шаги:
 
 1. Обновите ваш Chrome/Chromium до последней версии
 2. Перейдите в [https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
