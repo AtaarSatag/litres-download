@@ -1,5 +1,8 @@
 import os
+import sys
+import time
 
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.webdriver import WebDriver
@@ -7,12 +10,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from config import URL_BOOKS, URL_LOGIN, BOOK_ID, BOOK_NAME, PAGES, LOGIN, PASSWORD
 
-import requests
-
-import time
-
+from config import (URL_BOOKS, URL_LOGIN, BOOK_ID,
+                    BOOK_NAME, PAGES, LOGIN, PASSWORD)
 
 def check_close(driver):
     """
@@ -34,7 +34,8 @@ def create_driver():
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
     chrome_service = Service(ChromeDriverManager().install())
-    driver: WebDriver = webdriver.Chrome(service=chrome_service, options=chrome_options)
+    driver: WebDriver = webdriver.Chrome(service=chrome_service,
+                                         options=chrome_options)
     return driver
 
 
@@ -68,7 +69,8 @@ def scroll_down(driver):
         driver.implicitly_wait(1)
         footer = driver.find_element(by=By.CLASS_NAME, value='footer-wrap')
         if footer and footer.is_displayed():
-            loader_button = driver.find_element(by=By.ID, value='arts_loader_button')
+            loader_button = driver.find_element(by=By.ID,
+                                                value='arts_loader_button')
             if loader_button and not loader_button.is_displayed():
                 break
 
@@ -94,7 +96,7 @@ def load_books(driver: WebDriver):
             secure=cookie['secure'],
         )
     for i in range(PAGES):
-        percent = ((i + 1) / PAGES) * 100
+        percent = ((i+1)/PAGES) * 100
         src = URL_BOOKS.format(i, type_file, BOOK_ID)
         resp = session.get(src)
         if resp.status_code == requests.codes.not_found:
@@ -110,6 +112,11 @@ def load_books(driver: WebDriver):
 
         if abs(percent - round(percent)) > 0.2:
             print(f"Done: {round(percent, 2)}%")
+            match sys.platform:
+                case 'linux' | 'darwin':
+                    os.system('clear')
+                case 'win32':
+                    os.system('cls')
 
 
 def litres_loads():
