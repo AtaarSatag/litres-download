@@ -19,7 +19,7 @@ The repo has also [`config.py`](https://github.com/AtaarSatag/litres-book-downlo
 After that:
 
 - run [`get_images.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/get_images.py) to download the raw material
-- run `create_pdf_by_X.py` to get a PDF or another format of the book
+- run `create_pdf_by_X.py` (fpdf2 or pillow) to get a PDF or another format of the book
 
 That's done!
 
