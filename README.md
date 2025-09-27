@@ -1,4 +1,4 @@
- LitRes book downloader
+# LitRes book downloader
 
 ## Workflow
 
