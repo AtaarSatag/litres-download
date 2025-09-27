@@ -1,74 +1,34 @@
 # LitRes book downloader
 
-## Русский
+## Workflow
 
-Скрипты для скачивания книг с litres.ru, для которых нет опции скачать.
+Do you want to download a book from `litres.com/ru`, but it doesn't have such an feature? There is a solution to. This repo has two kinds of scripts: the first downloads raw book material - pages as images, the second is dedicated to convert the raw material to one of formats: PDF, TIFF - for a single file, and other formats.
 
-### Описание
+Script [`get_images.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/get_images.py) is of the first kind, it downloads the raw material with [Selenium](https://selenium.dev/) and it can raise error (see [ChromeDriver issue](#ChromeDriver-issue)). Scripts of the second kind are two there:
+- [`create_pdf_by_fpdf2.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/create_pdf_by_fpdf2.py) (alive successor of fpdf, learn more: [https://py-pdf.github.io/fpdf2/History.html](https://py-pdf.github.io/fpdf2/History.html))
+- [`create_pdf_by_pillow.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/create_pdf_by_pillow.py) ([fork](https://github.com/python-pillow/Pillow) of PIL)
+The first one only converts the book to PDF, the second can convert to PDF, and image formats: AVIF, BMP, GIF, PDF, TIFF, JPEG, PNG, and more (see [https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html](https://pillow.readthedocs.io/en/stable/handbook/image-file-formats.html))
 
-- Заполнить свои данные в [config.py](config.py)
-  - Логин
-  - Пароль
-  - ID книги
-  - Количество страниц книги
-- Запустить [get_images.py](get_images.py)
-  - Ожидать пока он сохранит все страницы
-- Запустить [create_pdf.py](create_pdf.py)
-  - Ожидать пока он создаст PDF из изображений
+The repo has also [config.py](https://github.com/AtaarSatag/litres-book-downloader/blob/master/config.py). You need to set up it, namely:
+    - fill up your `LOGIN` and `PASSWORD` of your LitRes account
+    - put your `BOOK_ID` (to know, go to the book webpage, open the LitRes reader, its page will have an URL like `https://litres.com/static/or3/view/or.html?art_type=4&file=00000000`, you need a value of the `file` parameter, it's the book ID)
+    - put the book `PAGES` (to know, open the book with the LitRes reader, run *DevTools* (**Ctrl+Shift+I**, usually), pick the last page by the element selector/picker (**Ctrl+Shift+C**), in the Elements tab, you will find an `img` element which has the parent `div`, it has an `id` attribute like `id="p_#"`, a number $#+1$ is `PAGES`)
 
-В целях удобства скрипты разнесены на 3 отдельных, поскольку каждая процедура занимает около 20-30 минут. Один скачивает исходный материал - книгу в виде картинок, два оставшихся конвертируют исходники в PDF или другой формат, если вы используете `create_pdf_by_pillow.py`.
+After that:
+    - run [`get_images.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/get_images.py) to download the raw material
+    - run `create_pdf_by_X.py` to get a PDF or another format of the book
+That's done!
 
-### ID книги
-- Для получения ID книги открыть *Инструменты разработчика* **(Ctrl+Shift+I)** при онлайн просмотре
-- Найти ссылку на изображение вида `https://www.litres.ru/pages/get_pdf_page/?file=ХХХХХХХХ`
-- `XXXXXXXX` это и есть ID книги
-
-### Проблема с ChromeDriver
-
-(Решение для GNU/Linux)
-
-Если вы сталкиваетесь с проблемой `selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 114 Current browser version is...`, когда запускаете скрипт `get_images.py`, то попробуйте следующие шаги:
-
-1. Обновите ваш Chrome/Chromium до последней версии
-2. Перейдите в [https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
-3. Скачайте stable версию **ChromeDrive** (не Chrome)
-4. Разархивируйте архив
-5. Найдите папку с бинарником уже установленного ChromeDriver (обычно, `/usr/bin/chromedriver-linux64`)
-6. Замените скачанным ChromeDriver'ом уже установленный (в его папке)
-7. Попробуйте запустить `get_images.py` снова
-
-## English
-
-There are scripts to download books if they aren't downloadable from litres.ru.
-
-### Description
-
-- Put your data into [config.py](config.py)
-  - Login
-  - Password
-  - Book ID
-  - Book page number
-- Run [get_images.py](get_images.py)
-  - Wait while the files are downloading.
-- Run [create_pdf.py](create_pdf.py)
-  - Wait while the files are converting into PDF.
-
-For convenience, there are 3 scripts due to time costs which are about 20-30 minutes. One script downloads raw material - book as images, the remaining two convert the material into PDF or another format if you use `create_pdf_by_pillow.py`.
-
-### Book ID
-- To get a book ID go to *Developer tools* **(Ctrl+Shift+I)** when the book is opened in the native reader
-- Search for a pattern like `litres.ru/pages/get_pdf_page/?file=ХХХХХХХХ`
-- `XXXXXXXX` is the book ID
-
-### ChromeDriver issue
+## ChromeDriver issue
 
 (The following solution is for GNU/Linux)
 
-If you get an error like `selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 114 Current browser version is...` when `get_images.py` is running, try:
-1. Update your Chrome/Chromium browser to the latest version
-2. Go to [https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/)
-3. Download a stable version of **ChromeDriver** (not Chrome)
+If you get an error like `selenium.common.exceptions.SessionNotCreatedException: Message: session not created: This version of ChromeDriver only supports Chrome version 114 Current browser version is...` when [`get_images.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/get_images.py) is running, try:
+
+1. Check your Chrome/Chromium version
+2. Go to [https://googlechromelabs.github.io/chrome-for-testing/](https://googlechromelabs.github.io/chrome-for-testing/) or to [https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json](https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json)
+3. Download a necessary version of **ChromeDriver** (not Chrome)
 4. Unzip the archive
 5. Find your ChromeDriver executable folder (something like `/usr/bin/chromedriver-linux64`)
-6. Move/copy downloaded ChromeDriver to that folder, i.e. replace the existing one
-7. Try to run `get_images.py` one more time
+6. Move/copy the downloaded ChromeDriver to that folder, i.e. replace the existing one
+7. Try to run [`get_images.py`](https://github.com/AtaarSatag/litres-book-downloader/blob/master/get_images.py) again 
