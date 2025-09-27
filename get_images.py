@@ -14,34 +14,17 @@ from webdriver_manager.chrome import ChromeDriverManager
 from config import (URL_BOOKS, URL_LOGIN, BOOK_ID,
                     BOOK_NAME, PAGES, LOGIN, PASSWORD)
 
-def check_close(driver):
-    """
-    wait until user closed browser window
-    :param driver:
-    :return:
-    """
-    closed = False
-    s = driver.title
-    while not closed:
-        try:
-            s = driver.title
-            time.sleep(1)
-        except:
-            closed = True
-
-
 def create_driver():
     chrome_options = Options()
     chrome_options.add_argument("--disable-extensions")
-    chrome_service = Service(ChromeDriverManager().install())
-    driver: WebDriver = webdriver.Chrome(service=chrome_service,
-                                         options=chrome_options)
+    chrome_service = Service(
+            executable_path='/usr/bin/chromedriver-linux64/chromedriver')
+    driver = webdriver.Chrome(service=chrome_service,
+                              options=chrome_options)
     return driver
-
 
 def login_litres(driver):
     driver.get(URL_LOGIN)
-
     username_in = driver.find_element(by=By.NAME, value='email')
     username_in.click()
     username_in.send_keys(LOGIN)
@@ -53,12 +36,10 @@ def login_litres(driver):
     password_in.send_keys(Keys.RETURN)
     time.sleep(2)
 
-
 def scroll_down(driver):
     count = 0
     while True:
         page = driver.find_element(by=By.TAG_NAME, value="html")
-
         page.send_keys(Keys.END)
         driver.implicitly_wait(1)
         page.send_keys(Keys.END)
@@ -73,9 +54,7 @@ def scroll_down(driver):
                                                 value='arts_loader_button')
             if loader_button and not loader_button.is_displayed():
                 break
-
     print(f'scroll down exit after {count} scrolls')
-
 
 def load_books(driver: WebDriver):
     print(f"create dir {BOOK_NAME}_{BOOK_ID}")
@@ -84,7 +63,7 @@ def load_books(driver: WebDriver):
         if not os.path.exists(f"books/{BOOK_NAME}_{BOOK_ID}"):
             os.makedirs(f"books/{BOOK_NAME}_{BOOK_ID}")
     type_file = "jpg"
-    driver.get(URL_BOOKS.format(0, "jpg", BOOK_ID))
+    driver.get(URL_BOOKS.format(0, type_file, BOOK_ID))
     time.sleep(2)
     session = requests.session()
     for cookie in driver.get_cookies():
@@ -95,29 +74,38 @@ def load_books(driver: WebDriver):
             path=cookie['path'],
             secure=cookie['secure'],
         )
+
     for i in range(PAGES):
         percent = ((i+1)/PAGES) * 100
         src = URL_BOOKS.format(i, type_file, BOOK_ID)
         resp = session.get(src)
-        if resp.status_code == requests.codes.not_found:
+        if (resp.status_code == requests.codes.not_found
+           and type_file == 'jpg'):
             type_file = 'gif'
             resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
-        if resp.status_code != requests.codes.ok:
+        elif (resp.status_code == requests.codes.not_found
+              and type_file == 'gif'):
+            type_file = 'jpg'
+            resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
+        elif resp.status_code == requests.codes.ok:
             time.sleep(2)
             resp = session.get(URL_BOOKS.format(i, type_file, BOOK_ID))
-        if resp.status_code != requests.codes.ok:
-            raise
+        else:
+            raise Exception(f"""There an error. The script tried to get
+                            the resource and got an answer:
+                            STATUS CODE: {resp.status_code}""")
         with open(f"books/{BOOK_NAME}_{BOOK_ID}/{i}.{type_file}", "wb") as f:
             f.write(resp.content)
 
-        if abs(percent - round(percent)) > 0.2:
-            print(f"Done: {round(percent, 2)}%")
-            match sys.platform:
-                case 'linux' | 'darwin':
-                    os.system('clear')
-                case 'win32':
-                    os.system('cls')
+        match sys.platform:
+            case 'linux' | 'darwin':
+                os.system('clear')
+            case 'win32':
+                os.system('cls')
+        print(f"Downloaded {i} pages of {PAGES}")
 
+        if i == PAGES:
+            driver.quit()
 
 def litres_loads():
     driver = create_driver()
@@ -125,14 +113,10 @@ def litres_loads():
     login_litres(driver)
     load_books(driver)
     time.sleep(1)
-
-    check_close(driver)
-    print('FINISH!')
-
+    print('DONE')
 
 def main():
     litres_loads()
-
 
 if __name__ == '__main__':
     main()
